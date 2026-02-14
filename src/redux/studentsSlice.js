@@ -1,28 +1,33 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-// Async thunk to fetch students
+const API_URL = "http://localhost:5000/api/students";
+
+/* =========================
+   Async Thunks
+   ========================= */
+
+// GET Students
 export const fetchStudents = createAsyncThunk(
   "students/fetchStudents",
   async () => {
-    const res = await fetch("http://localhost:5000/api/students");
-    const data = await res.json();
-    return data;
+    const response = await axios.get(API_URL);
+    return response.data;
   }
 );
 
-// Async thunk to add student
+// POST Student
 export const addStudent = createAsyncThunk(
   "students/addStudent",
   async (student) => {
-    const res = await fetch("http://localhost:5000/api/students", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(student),
-    });
-    const data = await res.json();
-    return data;
+    const response = await axios.post(API_URL, student);
+    return response.data;
   }
 );
+
+/* =========================
+   Slice
+   ========================= */
 
 const studentsSlice = createSlice({
   name: "students",
@@ -34,7 +39,7 @@ const studentsSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch students
+      // FETCH
       .addCase(fetchStudents.pending, (state) => {
         state.status = "loading";
       })
@@ -46,7 +51,8 @@ const studentsSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
-      // Add student
+
+      // ADD
       .addCase(addStudent.fulfilled, (state, action) => {
         state.list.push(action.payload);
       });
